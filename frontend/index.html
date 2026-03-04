@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>EPIDIA — Civilizational Intelligence Platform</title>
+    <meta name="description"
+        content="AI-Powered Civilizational Intelligence Platform. We Don't Predict the Future. We Protect It.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07090F;
+            --bg2: #0D1117;
+            --bg3: #121820;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-b: rgba(255, 255, 255, 0.06);
+            --teal: #00D4B1;
+            --teal-g: rgba(0, 212, 177, 0.12);
+            --teal-glo: rgba(0, 212, 177, 0.30);
+            --purple: #7B5EF6;
+            --pur-g: rgba(123, 94, 246, 0.12);
+            --safe: #22D06A;
+            --warn: #F5C400;
+            --crit: #F94060;
+            --crit-g: rgba(249, 64, 96, 0.12);
+            --txt: #D8E4F0;
+            --sub: #4A6070;
+            --bdr: rgba(255, 255, 255, 0.055);
+            --fn: 'Syne', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--fn);
+            background: var(--bg);
+            color: var(--txt);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            background-size: 256px;
+        }
+
+        .glow-teal {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--teal-glo), transparent 70%);
+            top: -120px;
+            left: 30%;
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-purple {
+            position: fixed;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(123, 94, 246, 0.25), transparent 70%);
+            bottom: -80px;
+            right: 5%;
+            opacity: 0.14;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Alert Banner */
+        #alertBanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: linear-gradient(90deg, rgba(249, 64, 96, 0.92), rgba(200, 40, 70, 0.92));
+            padding: 10px 28px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--fn);
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            backdrop-filter: blur(8px);
+        }
+
+        #alertBanner .ab-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+        #alertBanner .ab-close {
+            margin-left: auto;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            line-height: 1;
+            opacity: 0.7;
+        }
+
+        #alertBanner .ab-close:hover {
+            opacity: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: var(--bg2);
+            border-right: 1px solid var(--bdr);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 2;
+            position: relative;
+            opacity: 0;
+        }
+
+        .sidebar .logo-area {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid var(--bdr);
+        }
+
+        .sidebar .logo {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--teal);
+            letter-spacing: 4px;
+            line-height: 1;
+        }
+
+        .sidebar .logo-tag {
+            font-family: var(--mono);
+            font-size: 8px;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+
+        .nav-group {
+            padding: 16px 12px 8px;
+        }
+
+        .nav-label {
+            font-family: var(--mono);
+            font-size: 8px;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 0 8px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--sub);
+            transition: all 0.2s ease;
+            position: relative;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: var(--glass-b);
+            color: var(--txt);
+        }
+
+        .nav-item.active {
+            background: var(--teal-g);
+            color: var(--teal);
+            border: 1px solid rgba(0, 212, 177, 0.15);
+        }
+
+        .nav-item .nav-icon {
+            font-size: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-pip {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            margin-left: auto;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 14px;
+            border-top: 1px solid var(--bdr);
+        }
+
+        .gcri-pill {
+            background: var(--bg3);
+            border: 1px solid var(--bdr);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .gcri-pill-label {
+            font-family: var(--mono);
+            font-size: 8px;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .gcri-pill-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+        }
+
+        .gcri-pill-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--warn);
+            width: 0%;
+            transition: width 2s ease;
+        }
+
+        /* Main Area */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .topbar {
+            height: 60px;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--bdr);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            flex-shrink: 0;
+            gap: 16px;
+        }
+
+        .topbar-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--txt);
+        }
+
+        .topbar-sub {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--sub);
+        }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-clock {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--sub);
+        }
+
+        #liveDot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--safe);
+            display: inline-block;
+        }
+
+        .btn-gitlab {
+            background: var(--teal-g);
+            color: var(--teal);
+            border: 1px solid rgba(0, 212, 177, 0.2);
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-family: var(--fn);
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-gitlab:hover {
+            background: rgba(0, 212, 177, 0.2);
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px 28px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--bg3) transparent;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--bg3);
+            border-radius: 3px;
+        }
+
+        /* Row 1: Hero */
+        .row1 {
+            display: grid;
+            grid-template-columns: 240px 1fr 240px;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--bdr);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--teal-glo), transparent);
+        }
+
+        /* GCRI Ring Card */
+        .gcri-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gcri-card::before {
+            background: linear-gradient(90deg, transparent, var(--teal-glo), transparent);
+        }
+
+        .gcri-ring-wrap {
+            position: relative;
+            width: 130px;
+            height: 130px;
+        }
+
+        .gcri-ring-wrap svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.04);
+            stroke-width: 7;
+        }
+
+        .ring-fill {
+            fill: none;
+            stroke: var(--warn);
+            stroke-width: 7;
+            stroke-linecap: round;
+            stroke-dasharray: 326.7;
+            stroke-dashoffset: 326.7;
+            filter: drop-shadow(0 0 8px rgba(245, 196, 0, 0.4));
+        }
+
+        .gcri-score {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 46px;
+            font-weight: 800;
+            color: var(--warn);
+            line-height: 1;
+        }
+
+        .gcri-label {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 12px;
+        }
+
+        .gcri-sub {
+            font-family: var(--mono);
+            font-size: 8px;
+            color: var(--sub);
+            margin-top: 4px;
+        }
+
+        /* World Map Card */
+        .map-card {
+            padding: 16px;
+        }
+
+        .map-card .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-card .card-title span {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--sub);
+        }
+
+        .map-svg {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Feed Card */
+        .feed-card {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feed-card .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feed-list {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .feed-item {
+            padding: 8px 10px;
+            border-left: 2px solid var(--crit);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0 6px 6px 0;
+            font-size: 11px;
+            line-height: 1.4;
+            opacity: 0;
+        }
+
+        .feed-item .feed-time {
+            font-family: var(--mono);
+            font-size: 8px;
+            color: var(--sub);
+            margin-top: 3px;
+        }
+
+        /* Module Cards Row */
+        .modules-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .mod-card {
+            background: var(--glass);
+            border: 1px solid var(--bdr);
+            border-radius: 14px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .mod-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            border-radius: 1px;
+            background: var(--ac);
+        }
+
+        .mod-card:hover {
+            background: var(--glass-b);
+        }
+
+        .mod-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .mod-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: color-mix(in srgb, var(--ac) 10%, transparent);
+        }
+
+        .badge {
+            font-family: var(--mono);
+            font-size: 8px;
+            font-weight: 400;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .b-safe {
+            background: rgba(34, 208, 106, 0.12);
+            color: var(--safe);
+        }
+
+        .b-warn {
+            background: rgba(245, 196, 0, 0.12);
+            color: var(--warn);
+        }
+
+        .b-crit {
+            background: rgba(249, 64, 96, 0.12);
+            color: var(--crit);
+        }
+
+        .mod-score {
+            font-size: 50px;
+            font-weight: 800;
+            color: var(--ac);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .mod-name {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .mod-region {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--sub);
+            margin-bottom: 14px;
+        }
+
+        .sparkline {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 28px;
+        }
+
+        .sb {
+            flex: 1;
+            border-radius: 2px 2px 0 0;
+            min-width: 4px;
+            background: color-mix(in srgb, var(--ac) 30%, transparent);
+            transition: height 0.4s ease;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            border: 1px solid var(--bdr);
+            border-radius: 14px;
+            padding: 18px;
+            opacity: 0;
+        }
+
+        .stat-label {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-val {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-trend {
+            font-family: var(--mono);
+            font-size: 9px;
+        }
+
+        /* Modal */
+        #modalOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            background: rgba(7, 9, 15, 0.7);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: var(--bg3);
+            border: 1px solid var(--bdr);
+            border-radius: 16px;
+            padding: 32px;
+            width: 420px;
+            max-width: 90vw;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .modal-sub {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--sub);
+            margin-bottom: 20px;
+        }
+
+        .modal-progress {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .modal-progress-fill {
+            height: 100%;
+            background: var(--teal);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+
+        .scan-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 12px;
+            color: var(--sub);
+            opacity: 0;
+        }
+
+        .scan-step .scan-icon {
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .scan-step.done {
+            color: var(--teal);
+        }
+
+        .modal-close {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background: var(--teal-g);
+            color: var(--teal);
+            border: 1px solid rgba(0, 212, 177, 0.2);
+            border-radius: 8px;
+            font-family: var(--fn);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+        }
+
+        .modal-close:hover {
+            background: rgba(0, 212, 177, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width:1200px) {
+            .modules-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width:900px) {
+            .sidebar {
+                display: none;
+            }
+
+            .row1 {
+                grid-template-columns: 1fr;
+            }
+
+            .modules-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glow-teal"></div>
+    <div class="glow-purple"></div>
+
+    <!-- Alert Banner -->
+    <div id="alertBanner">
+        <div class="ab-dot"></div>
+        <span>⚠ CRITICAL — FoodSight crisis probability reached 73% in East Africa region (Kenya food crisis escalating)</span>
+        <button class="ab-close" onclick="document.getElementById('alertBanner').style.display='none'">✕</button>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="logo-area">
+            <div class="logo">EPIDIA</div>
+            <div class="logo-tag">Intelligence With a Conscience</div>
+        </div>
+        <div class="nav-group">
+            <div class="nav-label">Platform</div>
+            <a class="nav-item active" id="nav-overview"><span class="nav-icon">◉</span>Overview<span
+                    class="nav-pip"></span></a>
+            <a class="nav-item" id="nav-foodsight"><span class="nav-icon">🌾</span>FoodSight</a>
+            <a class="nav-item" id="nav-climarisk"><span class="nav-icon">🌡</span>ClimaRisk</a>
+            <a class="nav-item" id="nav-demohealth"><span class="nav-icon">🗳</span>DemoHealth</a>
+            <a class="nav-item" id="nav-aiwatch"><span class="nav-icon">🤖</span>AIWatch</a>
+            <a class="nav-item" id="nav-wealthflow"><span class="nav-icon">💸</span>WealthFlow</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-label">Tools</div>
+            <a class="nav-item" id="nav-alerts"><span class="nav-icon">🔔</span>Alerts</a>
+            <a class="nav-item" id="nav-sources"><span class="nav-icon">📡</span>Data Sources</a>
+            <a class="nav-item" id="nav-settings"><span class="nav-icon">⚙</span>Settings</a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="gcri-pill">
+                <div class="gcri-pill-label">Global Crisis Risk</div>
+                <div class="gcri-pill-bar">
+                    <div class="gcri-pill-fill" id="gcriPillFill"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="main-area">
+        <header class="topbar">
+            <div>
+                <div class="topbar-title">Global Intelligence Overview</div>
+                <div class="topbar-sub">Real-time civilizational risk monitoring</div>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-clock" id="clock"></span>
+                <span id="liveDot"></span>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--safe)">LIVE</span>
+                <button class="btn-gitlab" id="btnCommandCenter">⚡ Command Center</button>
+            </div>
+        </header>
+
+        <section class="content">
+            <!-- Row 1: GCRI + Map + Feed -->
+            <div class="row1">
+                <!-- GCRI Ring -->
+                <div class="card gcri-card">
+                    <div class="gcri-ring-wrap">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="ring-bg" cx="60" cy="60" r="52" />
+                            <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52" />
+                        </svg>
+                        <div class="gcri-score" id="gcriNum">0</div>
+                    </div>
+                    <div class="gcri-label">Global Crisis Risk Index</div>
+                    <div class="gcri-sub">5 modules · 40+ sources</div>
+                </div>
+
+                <!-- World Map -->
+                <div class="card map-card">
+                    <div class="card-title">🌍 Crisis Hotspots <span>Live Signal Map</span></div>
+                    <svg class="map-svg" viewBox="0 0 900 450" id="worldMap">
+                        <!-- Simplified continents -->
+                        <path
+                            d="M140,120 L180,100 L220,95 L250,110 L260,140 L240,180 L220,200 L200,240 L180,280 L160,320 L150,350 L160,370 L180,380 L170,400 L140,390 L120,350 L110,300 L100,260 L90,220 L100,180 L110,150 Z"
+                            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                        <path d="M170,320 L200,310 L230,330 L260,360 L250,400 L220,420 L190,410 L170,380 Z"
+                            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                        <path
+                            d="M400,60 L500,50 L550,70 L560,100 L540,130 L500,140 L480,160 L460,180 L430,200 L410,190 L400,170 L380,140 L370,110 L380,80 Z"
+                            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                        <path
+                            d="M420,180 L480,160 L530,170 L560,200 L580,240 L560,280 L530,300 L500,310 L470,300 L450,270 L430,240 L420,210 Z"
+                            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                        <path
+                            d="M560,100 L620,80 L700,90 L760,110 L800,130 L820,160 L810,200 L780,220 L740,210 L700,190 L660,170 L620,150 L580,130 Z"
+                            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                        <path d="M700,300 L750,280 L800,290 L830,320 L820,360 L790,380 L750,370 L720,340 Z"
+                            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                        <!-- Hotspots -->
+                        <g class="hotspot" data-module="FoodSight" data-region="East Africa">
+                            <circle class="hs-outer" cx="490" cy="230" r="14" fill="none" stroke="#F94060"
+                                stroke-width="1.5" opacity="0.5" />
+                            <circle class="hs-inner" cx="490" cy="230" r="5" fill="#F94060" opacity="0.85" />
+                            <circle class="hs-pulse" cx="490" cy="230" r="8" fill="none" stroke="#F94060"
+                                stroke-width="0.8" opacity="0.3" />
+                        </g>
+                        <g class="hotspot" data-module="ClimaRisk" data-region="SE Asia">
+                            <circle class="hs-outer" cx="735" cy="185" r="14" fill="none" stroke="#F5C400"
+                                stroke-width="1.5" opacity="0.5" />
+                            <circle class="hs-inner" cx="735" cy="185" r="5" fill="#F5C400" opacity="0.85" />
+                            <circle class="hs-pulse" cx="735" cy="185" r="8" fill="none" stroke="#F5C400"
+                                stroke-width="0.8" opacity="0.3" />
+                        </g>
+                        <g class="hotspot" data-module="DemoHealth" data-region="Eastern Europe">
+                            <circle class="hs-outer" cx="510" cy="90" r="14" fill="none" stroke="#F5C400"
+                                stroke-width="1.5" opacity="0.5" />
+                            <circle class="hs-inner" cx="510" cy="90" r="5" fill="#F5C400" opacity="0.85" />
+                            <circle class="hs-pulse" cx="510" cy="90" r="8" fill="none" stroke="#F5C400"
+                                stroke-width="0.8" opacity="0.3" />
+                        </g>
+                        <g class="hotspot" data-module="AIWatch" data-region="Global">
+                            <circle class="hs-outer" cx="570" cy="130" r="14" fill="none" stroke="#F94060"
+                                stroke-width="1.5" opacity="0.5" />
+                            <circle class="hs-inner" cx="570" cy="130" r="5" fill="#F94060" opacity="0.85" />
+                            <circle class="hs-pulse" cx="570" cy="130" r="8" fill="none" stroke="#F94060"
+                                stroke-width="0.8" opacity="0.3" />
+                        </g>
+                        <g class="hotspot" data-module="WealthFlow" data-region="Latin America">
+                            <circle class="hs-outer" cx="200" cy="310" r="14" fill="none" stroke="#22D06A"
+                                stroke-width="1.5" opacity="0.5" />
+                            <circle class="hs-inner" cx="200" cy="310" r="5" fill="#22D06A" opacity="0.85" />
+                            <circle class="hs-pulse" cx="200" cy="310" r="8" fill="none" stroke="#22D06A"
+                                stroke-width="0.8" opacity="0.3" />
+                        </g>
+                        <!-- Tooltip -->
+                        <g id="mapTooltip" opacity="0" pointer-events="none">
+                            <rect x="0" y="0" width="130" height="36" rx="6" fill="rgba(13,17,23,0.92)"
+                                stroke="rgba(255,255,255,0.1)" stroke-width="0.5" />
+                            <text id="ttModule" x="10" y="15" font-family="Syne" font-size="10" font-weight="700"
+                                fill="#D8E4F0"></text>
+                            <text id="ttRegion" x="10" y="28" font-family="JetBrains Mono" font-size="8"
+                                fill="#4A6070"></text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Live Feed -->
+                <div class="card feed-card">
+                    <div class="card-title">📡 Live Feed <span id="liveDot2"
+                            style="width:5px;height:5px;border-radius:50%;background:var(--safe);display:inline-block"></span>
+                    </div>
+                    <div class="feed-list" id="feedList"></div>
+                </div>
+            </div>
+
+            <!-- Module Cards -->
+            <div class="modules-row" id="modulesRow"></div>
+
+            <!-- Stats Row -->
+            <div class="stats-row" id="statsRow"></div>
+        </section>
+    </main>
+
+    <!-- GitLab Modal -->
+    <div id="modalOverlay">
+        <div class="modal">
+            <div class="modal-title">⬡ GitLab Duo Scan</div>
+            <div class="modal-sub">Connecting EPIDIA Context Agent to your workspace</div>
+            <div class="modal-progress">
+                <div class="modal-progress-fill" id="modalProgressFill"></div>
+            </div>
+            <div id="scanSteps"></div>
+            <button class="modal-close" id="modalClose"
+                onclick="document.getElementById('modalOverlay').style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        // ── DATA ──
+        const MODULES = [
+            { id: 0, name: 'FoodSight', icon: '🌾', score: 73, color: '#F94060', trend: [45, 52, 58, 61, 68, 71, 73], region: 'East Africa · FAO+NASA' },
+            { id: 1, name: 'ClimaRisk', icon: '🌡', score: 67, color: '#F5C400', trend: [55, 58, 60, 62, 63, 65, 67], region: 'SE Asia · ESA Copernicus' },
+            { id: 2, name: 'DemoHealth', icon: '🗳', score: 45, color: '#F5C400', trend: [60, 58, 55, 52, 50, 47, 45], region: 'Eastern Europe · V-Dem' },
+            { id: 3, name: 'AIWatch', icon: '🤖', score: 82, color: '#F94060', trend: [40, 50, 58, 65, 71, 77, 82], region: 'Global · AI Registries' },
+            { id: 4, name: 'WealthFlow', icon: '💸', score: 38, color: '#22D06A', trend: [42, 41, 40, 39, 38, 38, 38], region: 'Latin America · World Bank' }
+        ];
+
+        const STATS = [
+            { label: 'Crises Monitored', value: 847, color: 'var(--crit)', trend: '↑ 12% this week' },
+            { label: 'Data Sources', value: 43, color: 'var(--teal)', trend: '6hr refresh' },
+            { label: 'Alerts Sent', value: 1249, color: 'var(--warn)', trend: '↑ 8% vs last month' },
+            { label: 'Prediction Accuracy', value: 82, color: 'var(--safe)', trend: '≥82% validated', suffix: '%' }
+        ];
+
+        const FEED_ITEMS = [
+            { text: 'FoodSight: Kenya food crisis probability rose to 73%', severity: 'crit', time: '2m ago' },
+            { text: 'ClimaRisk: Extreme weather alert for SE Asia — 67% in 30d', severity: 'warn', time: '5m ago' },
+            { text: 'AIWatch: AI governance gap widened in 3 regions', severity: 'crit', time: '8m ago' },
+            { text: 'DemoHealth: Press freedom index dropped in Eastern Europe', severity: 'warn', time: '12m ago' },
+            { text: 'WealthFlow: Capital flow stable in Latin America', severity: 'safe', time: '18m ago' },
+            { text: 'FoodSight: NDVI anomaly detected in Horn of Africa', severity: 'crit', time: '23m ago' },
+            { text: 'ClimaRisk: Sea surface temp anomaly — El Niño signal', severity: 'warn', time: '31m ago' },
+            { text: 'AIWatch: Unregulated AI deployment spike in SE Asia', severity: 'crit', time: '42m ago' },
+            { text: 'WealthFlow: Gini coefficient stable in Brazil', severity: 'safe', time: '1h ago' },
+            { text: 'DemoHealth: Journalist detention reported — 2 countries', severity: 'crit', time: '1h ago' }
+        ];
+
+        const SCAN_STEPS = [
+            'Authenticating GitLab OAuth...',
+            'Reading project metadata...',
+            'Parsing deployment region tags...',
+            'Querying FoodSight intelligence...',
+            'Querying ClimaRisk signals...',
+            'Generating risk panel with Claude API...'
+        ];
+
+        // ── HELPERS ──
+        function badgeClass(score) { return score <= 40 ? 'b-safe' : score <= 70 ? 'b-warn' : 'b-crit'; }
+        function badgeText(score) { return score <= 40 ? 'SAFE' : score <= 70 ? 'WARNING' : 'CRITICAL'; }
+        function calcGCRI() {
+            const w = [0.30, 0.25, 0.20, 0.15, 0.10];
+            return Math.round(MODULES.reduce((s, m, i) => s + w[i] * m.score, 0));
+        }
+
+        // ── BUILD DOM ──
+        function buildModuleCards() {
+            const row = document.getElementById('modulesRow');
+            MODULES.forEach((m, i) => {
+                const maxT = Math.max(...m.trend);
+                const bars = m.trend.map(v => `<div class="sb" style="height:${(v / maxT) * 100}%"></div>`).join('');
+                row.innerHTML += `
+      <div class="mod-card" id="m${i}" style="--ac:${m.color}">
+        <div class="mod-top">
+          <div class="mod-icon">${m.icon}</div>
+          <span class="badge ${badgeClass(m.score)}">${badgeText(m.score)}</span>
+        </div>
+        <div class="mod-score" id="s${i}">0</div>
+        <div class="mod-name">${m.name}</div>
+        <div class="mod-region">${m.region}</div>
+        <div class="sparkline">${bars}</div>
+      </div>`;
+            });
+        }
+
+        function buildStatCards() {
+            const row = document.getElementById('statsRow');
+            STATS.forEach((s, i) => {
+                row.innerHTML += `
+      <div class="stat-card">
+        <div class="stat-label">${s.label}</div>
+        <div class="stat-val" style="color:${s.color}" id="st${i}">0${s.suffix || ''}</div>
+        <div class="stat-trend" style="color:var(--sub)">${s.trend}</div>
+      </div>`;
+            });
+        }
+
+        function buildInitialFeed() {
+            const list = document.getElementById('feedList');
+            const colors = { crit: 'var(--crit)', warn: 'var(--warn)', safe: 'var(--safe)' };
+            FEED_ITEMS.slice(0, 6).forEach(f => {
+                const el = document.createElement('div');
+                el.className = 'feed-item';
+                el.style.borderLeftColor = colors[f.severity];
+                el.innerHTML = `<div>${f.text}</div><div class="feed-time">${f.time}</div>`;
+                list.appendChild(el);
+            });
+        }
+
+        // ── CLOCK ──
+        function updateClock() {
+            const now = new Date();
+            const str = now.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            document.getElementById('clock').textContent = str + ' UTC';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ── MAP TOOLTIP ──
+        document.querySelectorAll('.hotspot').forEach(g => {
+            g.style.cursor = 'pointer';
+            g.addEventListener('mouseenter', e => {
+                const tt = document.getElementById('mapTooltip');
+                const cx = parseFloat(g.querySelector('.hs-inner').getAttribute('cx'));
+                const cy = parseFloat(g.querySelector('.hs-inner').getAttribute('cy'));
+                tt.setAttribute('transform', `translate(${cx + 18},${cy - 18})`);
+                document.getElementById('ttModule').textContent = g.dataset.module;
+                document.getElementById('ttRegion').textContent = g.dataset.region;
+                tt.setAttribute('opacity', '1');
+            });
+            g.addEventListener('mouseleave', () => {
+                document.getElementById('mapTooltip').setAttribute('opacity', '0');
+            });
+        });
+
+        // ── BUILD ──
+        buildModuleCards();
+        buildStatCards();
+        buildInitialFeed();
+
+        // ── ANIMATIONS ──
+        function runEntrance() {
+            // A1: Sidebar entrance
+            anime({ targets: '#sidebar', translateX: [-30, 0], opacity: [0, 1], duration: 800, easing: 'easeOutExpo' });
+
+            // A2: Module cards staggered entrance
+            anime({ targets: '.mod-card', translateY: [28, 0], opacity: [0, 1], duration: 700, easing: 'easeOutExpo', delay: anime.stagger(100, { start: 620 }) });
+
+            // Stat cards entrance
+            anime({ targets: '.stat-card', translateY: [20, 0], opacity: [0, 1], duration: 600, easing: 'easeOutExpo', delay: anime.stagger(80, { start: 1200 }) });
+
+            // Feed items entrance
+            anime({ targets: '.feed-item', translateX: ['120%', '0%'], opacity: [0, 1], duration: 380, easing: 'easeOutExpo', delay: anime.stagger(120, { start: 800 }) });
+
+            // A3: Score counters
+            MODULES.forEach((m, i) => {
+                const obj = { val: 0 };
+                anime({
+                    targets: obj, val: m.score, duration: 2000, easing: 'easeOutExpo', delay: 720 + i * 120,
+                    update: () => { document.getElementById('s' + i).textContent = Math.round(obj.val); }
+                });
+            });
+
+            // Stat counters
+            STATS.forEach((s, i) => {
+                const obj = { val: 0 };
+                anime({
+                    targets: obj, val: s.value, duration: 2200, easing: 'easeOutExpo', delay: 1300 + i * 100,
+                    update: () => { document.getElementById('st' + i).textContent = Math.round(obj.val) + (s.suffix || ''); }
+                });
+            });
+
+            // A4: GCRI ring fill
+            const GCRI = calcGCRI();
+            const circ = 2 * Math.PI * 52;
+            const offset = circ * (1 - GCRI / 100);
+            anime({ targets: '#ringFill', strokeDashoffset: [circ, offset], duration: 2600, easing: 'easeOutCubic', delay: 500 });
+
+            // A14: GCRI hero counter
+            const gObj = { val: 0 };
+            anime({
+                targets: gObj, val: GCRI, duration: 2600, easing: 'easeOutExpo', delay: 500,
+                update: () => { document.getElementById('gcriNum').textContent = Math.round(gObj.val); }
+            });
+
+            // GCRI pill bar
+            setTimeout(() => { document.getElementById('gcriPillFill').style.width = GCRI + '%'; }, 600);
+
+            // A5: Map hotspot pulse
+            anime({ targets: '.hs-outer', opacity: [0.5, 0.12], scale: [1, 1.6], duration: 2000, easing: 'easeOutSine', loop: true, delay: anime.stagger(380) });
+            anime({ targets: '.hs-inner', opacity: [0.85, 0.4], scale: [1, 1.15], duration: 1600, easing: 'easeInOutSine', loop: true, direction: 'alternate', delay: anime.stagger(380) });
+
+            // A6: Critical card box-shadow pulse
+            anime({ targets: '#m0, #m3', boxShadow: ['0 0 0px rgba(249,64,96,0)', '0 0 22px rgba(249,64,96,0.28)'], duration: 1300, easing: 'easeInOutSine', loop: true, direction: 'alternate' });
+
+            // A7: Live dot blink
+            anime({ targets: '#liveDot', opacity: [1, 0.12], duration: 780, easing: 'easeInOutSine', loop: true, direction: 'alternate' });
+
+            // A8 + A9: Card hover
+            document.querySelectorAll('.mod-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    anime({ targets: card, translateY: -7, duration: 280, easing: 'easeOutQuad' });
+                    anime({ targets: card.querySelector('.mod-icon'), rotate: '1turn', duration: 580, easing: 'easeOutBack' });
+                });
+                card.addEventListener('mouseleave', () => {
+                    anime({ targets: card, translateY: 0, duration: 280, easing: 'easeOutQuad' });
+                });
+            });
+
+            // A10 + A11: Alert banner
+            setTimeout(() => {
+                const hasCrit = MODULES.some(m => m.score > 80);
+                if (hasCrit) {
+                    const banner = document.getElementById('alertBanner');
+                    banner.style.display = 'flex';
+                    anime({
+                        targets: '#alertBanner', translateY: ['-100%', '0%'], duration: 600, easing: 'easeOutBounce',
+                        complete: () => {
+                            anime({ targets: '#alertBanner', translateX: [0, -10, 10, -7, 7, -4, 4, 0], duration: 580, easing: 'easeInOutSine' });
+                        }
+                    });
+                }
+            }, 3500);
+        }
+
+        // ── FEED ROTATION (A12) ──
+        let feedIdx = 6;
+        setInterval(() => {
+            const list = document.getElementById('feedList');
+            const f = FEED_ITEMS[feedIdx % FEED_ITEMS.length];
+            const colors = { crit: 'var(--crit)', warn: 'var(--warn)', safe: 'var(--safe)' };
+            const el = document.createElement('div');
+            el.className = 'feed-item';
+            el.style.borderLeftColor = colors[f.severity];
+            el.style.opacity = '0';
+            el.innerHTML = `<div>${f.text}</div><div class="feed-time">Just now</div>`;
+            list.prepend(el);
+            anime({ targets: el, translateX: ['120%', '0%'], opacity: [0, 1], duration: 380, easing: 'easeOutExpo' });
+            // Remove last if >6
+            if (list.children.length > 6) {
+                const last = list.children[list.children.length - 1];
+                anime({ targets: last, opacity: 0, height: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0, duration: 300, easing: 'easeInQuad', complete: () => last.remove() });
+            }
+            feedIdx++;
+        }, 8000);
+
+        // ── SCORE REFRESH (A13) ──
+        setInterval(() => {
+            MODULES.forEach((m, i) => {
+                const newScore = Math.min(100, Math.max(0, m.score + Math.round((Math.random() - 0.5) * 6)));
+                const obj = { val: m.score };
+                const el = document.getElementById('s' + i);
+                anime({
+                    targets: obj, val: newScore, duration: 1200, easing: 'easeOutExpo',
+                    update: () => { el.textContent = Math.round(obj.val); }
+                });
+                // Update badge
+                const badge = document.querySelector(`#m${i} .badge`);
+                badge.className = 'badge ' + badgeClass(newScore);
+                badge.textContent = badgeText(newScore);
+                // Card flash
+                const card = document.getElementById('m' + i);
+                anime({ targets: card, backgroundColor: ['rgba(255,255,255,0.04)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)'], duration: 800, easing: 'easeInOutSine' });
+                m.score = newScore;
+            });
+            // Update GCRI
+            const newGCRI = calcGCRI();
+            const gObj = { val: parseInt(document.getElementById('gcriNum').textContent) };
+            anime({
+                targets: gObj, val: newGCRI, duration: 1400, easing: 'easeOutExpo',
+                update: () => { document.getElementById('gcriNum').textContent = Math.round(gObj.val); }
+            });
+            document.getElementById('gcriPillFill').style.width = newGCRI + '%';
+            // Update ring
+            const circ = 2 * Math.PI * 52;
+            anime({ targets: '#ringFill', strokeDashoffset: circ * (1 - newGCRI / 100), duration: 1400, easing: 'easeOutCubic' });
+        }, 30000);
+
+        // ── COMMAND CENTER ──
+        document.getElementById('btnCommandCenter').addEventListener('click', () => {
+            showCommandCenter();
+        });
+
+        // ── START ──
+        runEntrance();
+    </script>
+    <script src="app.js?v=7"></script>
+</body>
+
+</html>

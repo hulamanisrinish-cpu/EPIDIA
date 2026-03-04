@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DemoHealth - EPIDIA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Modern Chatbot Inline Styles */
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 48px rgba(102, 126, 234, 0.6);
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            width: 440px;
+            height: 680px;
+            background: linear-gradient(180deg, #1a1d2e 0%, #16171f 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            overflow: hidden;
+        }
+        .chatbot-container.active { display: flex; }
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px 28px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chatbot-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .chatbot-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+        }
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #16171f;
+        }
+        .message { display: flex; gap: 14px; }
+        .message.user { flex-direction: row-reverse; }
+        .message-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .message-content {
+            max-width: 72%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 15px;
+            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .message.bot .message-content {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.25);
+            color: #e8eaf6;
+            border-radius: 16px 16px 16px 4px;
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.15) 0%, rgba(245, 87, 108, 0.15) 100%);
+            border: 1px solid rgba(240, 147, 251, 0.25);
+            color: #e8eaf6;
+            border-radius: 16px 16px 4px 16px;
+        }
+        .message-content strong {
+            color: #a78bfa;
+            display: block;
+            margin-bottom: 14px;
+            font-weight: 700;
+            font-size: 17px;
+        }
+        .message-content ul { margin: 14px 0; padding-left: 24px; }
+        .message-content li { margin: 10px 0; color: #d1d5db; font-size: 14px; }
+        .chatbot-input-area {
+            padding: 24px 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            gap: 14px;
+            background: #1a1d2e;
+        }
+        .chatbot-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px 20px;
+            color: #e8eaf6;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .chatbot-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
+        }
+        .chatbot-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 14px;
+            padding: 16px 24px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .typing-indicator { display: flex; gap: 6px; padding: 16px 20px; }
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            animation: typingBounce 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-12px); opacity: 1; }
+        }
+    </style>
+    <style>
+        :root {
+            --bg: #07090F;
+            --bg2: #0D1117;
+            --bg3: #121820;
+            --teal: #00D4B1;
+            --purple: #7B5EF6;
+            --txt: #D8E4F0;
+            --sub: #4A6070;
+            --bdr: rgba(255, 255, 255, 0.055);
+            --fn: 'Syne', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--fn);
+            background: var(--bg);
+            color: var(--txt);
+            padding: 40px;
+            min-height: 100vh;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .back-btn {
+            display: inline-block;
+            color: var(--teal);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 1px solid var(--teal);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover { background: rgba(0, 212, 177, 0.1); }
+        
+        h1 { font-size: 48px; color: var(--purple); margin-bottom: 10px; }
+        
+        .subtitle {
+            font-family: var(--mono);
+            font-size: 14px;
+            color: var(--sub);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: var(--bg2);
+            border: 1px solid var(--bdr);
+            border-radius: 12px;
+            padding: 30px;
+        }
+        
+        .card h3 { font-size: 18px; margin-bottom: 15px; color: var(--purple); }
+        
+        .score {
+            font-size: 64px;
+            font-weight: 800;
+            color: var(--purple);
+            line-height: 1;
+        }
+        
+        .label {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 10px;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .tech-tag {
+            background: var(--bg3);
+            border: 1px solid var(--bdr);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--sub);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back to Overview</a>
+            <h1>🗳 DemoHealth</h1>
+            <p class="subtitle">Democratic Health & Press Freedom Monitoring</p>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>Global Democracy Score</h3>
+                <div class="score">45</div>
+                <div class="label">Health Index</div>
+            </div>
+            
+            <div class="card">
+                <h3>Declining Regions</h3>
+                <div class="score" style="font-size: 48px;">23</div>
+                <div class="label">At Risk</div>
+            </div>
+            
+            <div class="card">
+                <h3>Press Freedom Alerts</h3>
+                <div class="score" style="font-size: 48px;">15</div>
+                <div class="label">Active Warnings</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Democratic Backsliding - Real-Time Alerts</h3>
+            <ul class="region-list" style="list-style: none; padding: 0;">
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Russia - Total Authoritarian Control</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">Press Freedom Rank: 164/180 • All independent media banned • Opposition imprisoned/exiled</div>
+                </li>
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Myanmar - Military Coup Aftermath</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">3+ years military rule • 3,000+ civilians killed • Internet shutdowns • Journalists imprisoned</div>
+                </li>
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Iran - Protest Crackdowns</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">Mahsa Amini protests suppressed • 500+ killed • Mass arrests • Internet blackouts</div>
+                </li>
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Nicaragua - Ortega Dictatorship</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">All opposition banned • 2,000+ political prisoners • NGOs expelled • Media silenced</div>
+                </li>
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Hungary - EU Democracy Crisis</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">Judicial independence eroded • Media captured by state • Academic freedom restricted</div>
+                </li>
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Turkey - Erdoğan Consolidation</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">90% media state-controlled • Journalists jailed • Opposition mayors removed • Kurdish rights suppressed</div>
+                </li>
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Venezuela - Maduro Regime</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">Fraudulent elections • 7M refugees fled • Economic collapse • Opposition banned</div>
+                </li>
+                <li class="region-item" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--purple);">
+                    <div style="font-weight: 700; margin-bottom: 5px;">India - Press Freedom Decline</div>
+                    <div style="font-family: var(--mono); font-size: 12px; color: var(--purple);">Rank dropped to 161/180 • Journalists arrested under sedition • Internet shutdowns in Kashmir</div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <script src="chatbot.js"></script>
+</body>
+</html>

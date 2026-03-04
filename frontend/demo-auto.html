@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPIDIA - Auto Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        #demo-frame {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+        }
+        
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        
+        #text-overlay {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(0, 212, 177, 0.95), rgba(0, 180, 150, 0.95));
+            color: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 212, 177, 0.4);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        #text-overlay.show {
+            opacity: 1;
+        }
+        
+        #progress-bar {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00D4B1, #00A896);
+            width: 0%;
+            transition: width 0.3s linear;
+        }
+        
+        #logo-overlay {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: 800;
+            color: #00D4B1;
+            letter-spacing: 8px;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        
+        #logo-overlay.show {
+            opacity: 1;
+        }
+        
+        #tagline {
+            position: fixed;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        
+        #tagline.show {
+            opacity: 1;
+        }
+        
+        .cursor-highlight {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #00D4B1;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 212, 177, 0.6);
+        }
+        
+        .cursor-highlight.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay">
+        <div id="logo-overlay">EPIDIA</div>
+        <div id="tagline">Intelligence With A Conscience</div>
+        <div id="text-overlay"></div>
+        <div id="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+        <div class="cursor-highlight" id="cursor"></div>
+    </div>
+    
+    <iframe id="demo-frame" src="index.html"></iframe>
+    
+    <script>
+        const textOverlay = document.getElementById('text-overlay');
+        const progressFill = document.getElementById('progress-fill');
+        const logoOverlay = document.getElementById('logo-overlay');
+        const tagline = document.getElementById('tagline');
+        const cursor = document.getElementById('cursor');
+        const frame = document.getElementById('demo-frame');
+        
+        let currentStep = 0;
+        let totalDuration = 180000; // 3 minutes
+        let startTime = Date.now();
+        
+        const steps = [
+            {
+                time: 0,
+                duration: 5000,
+                text: "EPIDIA - AI-Powered Civilizational Intelligence Platform",
+                action: () => {
+                    logoOverlay.classList.add('show');
+                    tagline.classList.add('show');
+                }
+            },
+            {
+                time: 5000,
+                duration: 5000,
+                text: "We Don't Predict the Future. We Protect It.",
+                action: () => {
+                    logoOverlay.classList.remove('show');
+                    tagline.classList.remove('show');
+                }
+            },
+            {
+                time: 10000,
+                duration: 8000,
+                text: "Global crises are accelerating: Food insecurity, Climate disasters, Democratic backsliding",
+                action: () => {}
+            },
+            {
+                time: 18000,
+                duration: 10000,
+                text: "EPIDIA monitors 5 critical civilizational threats in real-time",
+                action: () => {}
+            },
+            {
+                time: 28000,
+                duration: 12000,
+                text: "FoodSight: Tracking food security crises in Gaza, Sudan, Horn of Africa",
+                action: () => {
+                    setTimeout(() => {
+                        try {
+                            frame.contentWindow.location.href = 'foodsight.html';
+                        } catch(e) {}
+                    }, 2000);
+                }
+            },
+            {
+                time: 40000,
+                duration: 15000,
+                text: "Real crisis data with probability scores and regional breakdowns",
+                action: () => {}
+            },
+            {
+                time: 55000,
+                duration: 5000,
+                text: "But data alone isn't enough. Meet our AI-powered chatbot...",
+                action: () => {
+                    moveCursor(window.innerWidth - 100, window.innerHeight - 100);
+                }
+            },
+            {
+                time: 60000,
+                duration: 20000,
+                text: "Powered by Google Gemini AI - Ask ANY question about crisis response",
+                action: () => {
+                    cursor.classList.add('show');
+                }
+            },
+            {
+                time: 80000,
+                duration: 15000,
+                text: "The AI provides personalized, actionable guidance - not pre-programmed responses",
+                action: () => {
+                    cursor.classList.remove('show');
+                }
+            },
+            {
+                time: 95000,
+                duration: 5000,
+                text: "Command Center: Your crisis management action hub",
+                action: () => {
+                    try {
+                        frame.contentWindow.location.href = 'index.html';
+                    } catch(e) {}
+                    setTimeout(() => {
+                        moveCursor(window.innerWidth - 200, 100);
+                        cursor.classList.add('show');
+                    }, 2000);
+                }
+            },
+            {
+                time: 100000,
+                duration: 15000,
+                text: "Export reports, refresh data, share with teams, take immediate action",
+                action: () => {
+                    cursor.classList.remove('show');
+                }
+            },
+            {
+                time: 115000,
+                duration: 10000,
+                text: "Connected to trusted sources: FAO, NASA, World Bank, V-Dem, IPCC",
+                action: () => {}
+            },
+            {
+                time: 125000,
+                duration: 8000,
+                text: "ClimaRisk: Climate disasters and extreme weather monitoring",
+                action: () => {
+                    try {
+                        frame.contentWindow.location.href = 'climarisk.html';
+                    } catch(e) {}
+                }
+            },
+            {
+                time: 133000,
+                duration: 8000,
+                text: "DemoHealth: Democratic health and human rights tracking",
+                action: () => {
+                    try {
+                        frame.contentWindow.location.href = 'demohealth.html';
+                    } catch(e) {}
+                }
+            },
+            {
+                time: 141000,
+                duration: 8000,
+                text: "AIWatch: AI governance and ethics monitoring",
+                action: () => {
+                    try {
+                        frame.contentWindow.location.href = 'aiwatch.html';
+                    } catch(e) {}
+                }
+            },
+            {
+                time: 149000,
+                duration: 8000,
+                text: "WealthFlow: Wealth inequality and economic justice",
+                action: () => {
+                    try {
+                        frame.contentWindow.location.href = 'wealthflow.html';
+                    } catch(e) {}
+                }
+            },
+            {
+                time: 157000,
+                duration: 8000,
+                text: "Real-time crisis monitoring across all domains",
+                action: () => {
+                    try {
+                        frame.contentWindow.location.href = 'index.html';
+                    } catch(e) {}
+                }
+            },
+            {
+                time: 165000,
+                duration: 10000,
+                text: "EPIDIA bridges the gap between awareness and action",
+                action: () => {}
+            },
+            {
+                time: 175000,
+                duration: 5000,
+                text: "Because when crises happen, every second counts.",
+                action: () => {
+                    logoOverlay.classList.add('show');
+                    tagline.classList.add('show');
+                }
+            }
+        ];
+        
+        function showText(text) {
+            textOverlay.textContent = text;
+            textOverlay.classList.add('show');
+        }
+        
+        function hideText() {
+            textOverlay.classList.remove('show');
+        }
+        
+        function updateProgress() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min((elapsed / totalDuration) * 100, 100);
+            progressFill.style.width = progress + '%';
+            
+            if (progress < 100) {
+                requestAnimationFrame(updateProgress);
+            }
+        }
+        
+        function moveCursor(x, y) {
+            cursor.style.left = x + 'px';
+            cursor.style.top = y + 'px';
+        }
+        
+        function runDemo() {
+            steps.forEach(step => {
+                setTimeout(() => {
+                    showText(step.text);
+                    step.action();
+                    
+                    setTimeout(() => {
+                        hideText();
+                    }, step.duration - 500);
+                }, step.time);
+            });
+            
+            updateProgress();
+        }
+        
+        // Start demo after frame loads
+        frame.onload = () => {
+            setTimeout(runDemo, 1000);
+        };
+    </script>
+</body>
+</html>
