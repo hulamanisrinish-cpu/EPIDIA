@@ -1,6 +1,6 @@
 // EPIDIA AI Assistant - Powered by Gemini AI
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://epidia-production.up.railway.app';
 
 class EPIDIAChatbot {
     constructor() {

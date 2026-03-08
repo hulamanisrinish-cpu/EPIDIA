@@ -1,7 +1,7 @@
 // EPIDIA Platform - Navigation and Module Management
 
 // Module data endpoints
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = 'https://epidia-production.up.railway.app/api/v1';
 
 // Navigation handlers
 document.addEventListener('DOMContentLoaded', () => {
@@ -603,7 +603,7 @@ async function generateAISummary() {
     showReportModal('🤖 Generating AI Summary...', '<div style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--sub);">Analyzing crisis data with Gemini AI...</div></div>');
     
     try {
-        const response = await fetch('http://localhost:8000/chat', {
+        const response = await fetch('https://epidia-production.up.railway.app/api/v1/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -935,7 +935,7 @@ async function refreshAllData() {
     showReportModal('🔄 Refreshing Data...', '<div style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--sub);">Fetching latest data from APIs...</div></div>');
     
     try {
-        const response = await fetch('http://localhost:8000/crisis-data');
+        const response = await fetch('https://epidia-production.up.railway.app/api/v1/crisis-data');
         const data = await response.json();
         
         showReportModal('✓ Data Refreshed', `
