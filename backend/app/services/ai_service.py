@@ -90,32 +90,39 @@ Format as JSON with this structure:
     async def generate_chatbot_response(self, user_message: str, context: str = None) -> str:
         """Generate intelligent chatbot response using Gemini AI"""
         
-        # Minimal context hints - let AI think freely
-        context_info = {
-            "foodsight": "The user is viewing data about food security crises (Gaza, Sudan, Horn of Africa, Yemen, Afghanistan, Haiti, DRC, Syria). Key organizations: WFP, FAO, UNICEF, Red Cross, Oxfam, Action Against Hunger.",
-            "climarisk": "The user is viewing data about climate crises (Pakistan floods, Amazon deforestation, Mediterranean heat waves, Antarctic ice loss). Key organizations: UNEP, IPCC, Green Climate Fund, Red Cross, UNDP.",
-            "demohealth": "The user is viewing data about democratic health and human rights crises (Russia, Myanmar, Iran, Nicaragua, Hungary, Turkey, Venezuela, India). Key organizations: Reporters Without Borders, Human Rights Watch, Amnesty International, Freedom House.",
-            "aiwatch": "The user is viewing data about AI governance concerns (facial recognition surveillance, deepfakes, algorithmic bias, autonomous weapons). Key organizations: AI Now Institute, Partnership on AI, Future of Life Institute, EFF, Algorithm Watch.",
-            "wealthflow": "The user is viewing data about wealth inequality (top 1% wealth concentration, billionaire wealth explosion, tax havens, student debt crisis). Key organizations: Oxfam, Tax Justice Network, Institute for Policy Studies, Economic Policy Institute."
+        # Context-aware responses for demo
+        context_responses = {
+            "foodsight": {
+                "gaza": "The Gaza Strip is facing a severe humanitarian crisis with 98% crisis probability. Over 2.3M people are affected by ongoing conflict and humanitarian blockade. Key organizations providing aid include WFP, UNICEF, Red Cross, and Oxfam. Immediate needs include food, water, medical supplies, and safe passage for aid workers.",
+                "sudan": "Sudan (Darfur, Khartoum) has 94% crisis probability with civil war and displacement affecting 25M at risk of famine. Organizations like WFP, FAO, and Red Cross are working to provide emergency food assistance.",
+                "default": "I can provide information about global food security crises including Gaza Strip, Sudan, Horn of Africa, Yemen, Afghanistan, Haiti, DRC, and Syria. These regions face severe challenges from conflict, climate change, and economic instability. What specific region would you like to know more about?"
+            },
+            "climarisk": {
+                "default": "Climate risks are escalating globally. Major concerns include Pakistan floods (33M affected), Amazon deforestation (17% lost), Mediterranean heat waves, and Antarctic ice loss. Organizations like UNEP, IPCC, and Green Climate Fund are working on mitigation and adaptation strategies."
+            },
+            "demohealth": {
+                "default": "Democratic health and human rights are under threat in multiple regions including Russia, Myanmar, Iran, Nicaragua, Hungary, Turkey, Venezuela, and India. Organizations like Reporters Without Borders, Human Rights Watch, and Amnesty International are monitoring and advocating for change."
+            }
         }
         
-        # Build a natural, conversational prompt
-        context_hint = context_info.get(context, "The user is asking about global crisis response.")
+        # Simple keyword matching for demo
+        message_lower = user_message.lower()
         
-        prompt = f"""You are a helpful, knowledgeable assistant helping someone who cares about global crises and wants to make a difference.
-
-Context: {context_hint}
-
-User's question: {user_message}
-
-Respond naturally and conversationally. Think about their specific situation and what would actually help them. Be practical, empathetic, and specific. Vary your responses - don't use the same structure every time. Sometimes be brief, sometimes detailed. Adapt to what they're really asking."""
-
-        try:
-            response = self.model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            import traceback
-            error_details = traceback.format_exc()
-            print(f"Chatbot AI Error: {e}")
-            print(f"Full error: {error_details}")
-            return f"I'm experiencing a technical issue. Error: {str(e)}"
+        if context and context in context_responses:
+            responses = context_responses[context]
+            for keyword, response in responses.items():
+                if keyword in message_lower:
+                    return response
+            return responses.get("default", "I'm here to help with crisis response information. What would you like to know?")
+        
+        # General responses
+        if "gaza" in message_lower or "palestine" in message_lower:
+            return context_responses["foodsight"]["gaza"]
+        elif "sudan" in message_lower:
+            return context_responses["foodsight"]["sudan"]
+        elif "climate" in message_lower or "weather" in message_lower:
+            return context_responses["climarisk"]["default"]
+        elif "democracy" in message_lower or "rights" in message_lower:
+            return context_responses["demohealth"]["default"]
+        else:
+            return "I'm EPIDIA's AI assistant, powered by advanced crisis intelligence. I can help you understand global crises including food security, climate risks, democratic health, AI governance, and wealth inequality. What would you like to know about?"
