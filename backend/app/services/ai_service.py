@@ -1,4 +1,5 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 from typing import List, Dict
 from app.models.diagnosis import Symptom
@@ -8,16 +9,19 @@ class AIService:
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
-        genai.configure(api_key=api_key)
-        # Use the latest available model
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        self.client = genai.Client(api_key=api_key)
+        self.model_id = 'gemini-2.0-flash-exp'
     
     async def analyze_symptoms(self, symptoms: List[Symptom], patient_context: Dict) -> Dict:
         """Analyze symptoms using Gemini AI"""
         prompt = self._build_diagnosis_prompt(symptoms, patient_context)
         
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
             return self._parse_diagnosis_response(response.text)
         except Exception as e:
             print(f"AI Service Error: {e}")
@@ -112,7 +116,10 @@ User's question: {user_message}
 Respond naturally and conversationally. Think about their specific situation and what would actually help them. Be practical, empathetic, and specific. Vary your responses - don't use the same structure every time. Sometimes be brief, sometimes detailed. Adapt to what they're really asking."""
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
             return response.text
         except Exception as e:
             # Log the actual error for debugging

@@ -2,7 +2,7 @@ fastapi
 uvicorn[standard]
 python-dotenv
 pydantic==2.6.4
-google-generativeai
+google-genai
 python-multipart
 httpx
 aiohttp
