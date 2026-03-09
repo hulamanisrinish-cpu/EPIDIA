@@ -10,7 +10,7 @@ class AIService:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-pro')
     
     async def analyze_symptoms(self, symptoms: List[Symptom], patient_context: Dict) -> Dict:
         """Analyze symptoms using Gemini AI"""
