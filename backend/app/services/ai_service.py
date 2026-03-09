@@ -1,5 +1,4 @@
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 import os
 from typing import List, Dict
 from app.models.diagnosis import Symptom
@@ -10,22 +9,18 @@ class AIService:
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
         
-        self.client = genai.Client(api_key=api_key)
-        self.model_id = 'gemini-2.0-flash-exp'
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel('gemini-pro')
     
     async def analyze_symptoms(self, symptoms: List[Symptom], patient_context: Dict) -> Dict:
         """Analyze symptoms using Gemini AI"""
         prompt = self._build_diagnosis_prompt(symptoms, patient_context)
         
         try:
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt
-            )
+            response = self.model.generate_content(prompt)
             return self._parse_diagnosis_response(response.text)
         except Exception as e:
             print(f"AI Service Error: {e}")
-            # Return mock data for demo
             return self._get_mock_diagnosis()
     
     def _build_diagnosis_prompt(self, symptoms: List[Symptom], context: Dict) -> str:
@@ -116,17 +111,11 @@ User's question: {user_message}
 Respond naturally and conversationally. Think about their specific situation and what would actually help them. Be practical, empathetic, and specific. Vary your responses - don't use the same structure every time. Sometimes be brief, sometimes detailed. Adapt to what they're really asking."""
 
         try:
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt
-            )
+            response = self.model.generate_content(prompt)
             return response.text
         except Exception as e:
-            # Log the actual error for debugging
             import traceback
             error_details = traceback.format_exc()
             print(f"Chatbot AI Error: {e}")
             print(f"Full error: {error_details}")
-            
-            # Return a helpful fallback message
-            return f"I'm experiencing a technical issue connecting to my AI brain. The error is: {str(e)}. Please make sure the backend is running and the GEMINI_API_KEY is valid in your .env file."
+            return f"I'm experiencing a technical issue. Error: {str(e)}"
