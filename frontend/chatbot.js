@@ -105,7 +105,7 @@ class EPIDIAChatbot {
         
         try {
             // Call backend API with Gemini AI
-            const response = await fetch(`${API_URL}/chat`, {
+            const response = await fetch(`${API_URL}/api/v1/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
